@@ -5,6 +5,8 @@ export class Table extends React.Component<IFaces.IProps, any> {
 
     _frame = null;
     _dimentions = {x1: 0, y1: 0, x2: 0, y2: 0};
+    _allCells = [];
+    _selected = [];
 
     constructor(props: IFaces.IProps) {
         super(props);
@@ -27,15 +29,18 @@ export class Table extends React.Component<IFaces.IProps, any> {
 
     renderRow = (row: any, rowId: number) => {
         let cells = this.props.headers.map((name: string, cellId: number) => {
-            return this.renderCell(row[name], cellId);
+            return this.renderCell(row[name], rowId, cellId);
         });
         let showId = 'row-' + rowId.toString();
         return (<tr key={showId}>{cells}</tr>);
     };
 
-    renderCell = (content: any, cellId: number) => {
-        let showId = 'cell-' + cellId.toString();
-        return (<td key={showId}>{content}</td>);
+    renderCell = (content: any, rowId: number, cellId: number) => {
+        let showId = 'cell-' + rowId.toString() + '-' + cellId.toString();
+        return (
+            <td key={showId}
+                ref={c => (this._allCells.push({elem: c, rowId: rowId, cellId: cellId}))}>{content}</td>
+        );
     };
 
     normalizeFrame = () => {
@@ -58,16 +63,42 @@ export class Table extends React.Component<IFaces.IProps, any> {
         this._frame.style.height = (y2 - y1).toString() + 'px';
     };
 
+    findSelected = () => {
+        this._selected = this._allCells.filter(this.isContained);
+    };
+
+    isContained = (obj) => {
+        let rect = obj.elem.getBoundingClientRect();
+        if (rect.top > this._dimentions.y1 &&
+            rect.bottom < this._dimentions.y2 &&
+            rect.left > this._dimentions.x1 &&
+            rect.right < this._dimentions.x2) {
+            return true;
+        }
+        return false;
+    };
+
+    deselect = () => {
+        this._selected.forEach(obj => (obj.elem.style.border = '1px solid black'));
+        this._selected = [];
+    };
+
+    highlightSelected = () => {
+        this._selected.forEach(obj => (obj.elem.style.border = '2px solid red'));
+        console.log(this._selected);
+    };
+
     handleMouseDown = (ev) => {
+        this.deselect();
         this._frame.hidden = 0;
         this._dimentions.x1 = ev.clientX;
         this._dimentions.y1 = ev.clientY;
-        console.log("Mouse down", this._dimentions, this._frame.hidden);
     };
 
     handleMouseUp = (ev) => {
         this._frame.hidden = 1;
-        console.log("Mouse up", this._dimentions, this._frame.hidden);
+        this.findSelected();
+        this.highlightSelected();
     };
 
     handleMouseMove = (ev) => {
