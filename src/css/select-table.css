@@ -1,0 +1,16 @@
+.selec-table-frame-div {
+    border: 2px dotted #000;
+    position: absolute;
+    background-color: rgba(128, 128, 128, 0.5);
+    z-index: 55;
+}
+
+table {
+  margin: 30px;
+}
+
+td, th {
+  padding: 5px;
+  font-size: 12pt;
+  border: 1px solid black;
+}
