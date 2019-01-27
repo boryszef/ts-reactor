@@ -11,7 +11,7 @@ module.exports = {
   ],
   output: {
     path: __dirname + '/public',
-    filename: 'build/[name].[contenthash].js'
+    filename: 'build/[name].js'
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js']
