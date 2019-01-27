@@ -36,11 +36,11 @@ class Container extends React.Component<any, any> {
     }
 
     renderObject (obj, id) {
-        let text = '';
+        let line = [];
         for (let prop in obj) {
-            text += prop + ': ' + obj[prop] + ', ';
+            line.push(<span><strong>{prop}:</strong> {obj[prop]} </span>);
         }
-        return (<div key={id}>{text}</div>);
+        return (<div key={id}>{line}</div>);
     }
 
     selectedCallback = (data) => {
