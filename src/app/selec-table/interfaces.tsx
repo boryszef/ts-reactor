@@ -1,4 +1,5 @@
 export interface IProps {
     headers: string[],
-    data: any[]
+    data: any[],
+    getSelected?: (data: any) => void
 };

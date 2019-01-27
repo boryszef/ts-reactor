@@ -1,126 +1,151 @@
 import * as React from 'react';
 import * as IFaces from './interfaces';
 
-export class Table extends React.Component<IFaces.IProps, any> {
+export class SelecTable extends React.Component<IFaces.IProps, any> {
 
     _frame = null;
-    _dimentions = {x1: 0, y1: 0, x2: 0, y2: 0};
-    _allCells = [];
+    _dimensions = {x1: 0, y1: 0, x2: 0, y2: 0};
+    _allCells = {};
     _selected = [];
 
     constructor(props: IFaces.IProps) {
         super(props);
     }
 
-    renderHeaders () {
-        return (<tr>{this.renderHeaderCells()}</tr>);
+    render () {
+        return (
+            <div onMouseDown={this._handleMouseDown}
+                 onMouseUp={this._handleMouseUp}
+                 onMouseMove={this._handleMouseMove}>
+                <div className="selec-table-frame-div"
+                     ref={c => (this._frame = c)}
+                     hidden></div>
+                {this._renderTable()}
+            </div>
+        );
     }
 
-    renderHeaderCells = () => {
+    passToCallback = () => {
+        if (!this.props.getSelected) {
+            return;
+        }
+        let data = this._selected.map((obj) => {
+            return {
+                value: obj.elem.innerHTML,
+                rowId: obj.rowId,
+                column: this.props.headers[obj.cellId]
+            };
+        });
+        this.props.getSelected(data);
+    };
+
+    _renderTable () {
+        return (<table>
+                    <thead>{this._renderHeaders()}</thead>
+                    <tbody>{this._renderRows()}</tbody>
+                </table>);
+    }
+
+    _renderHeaders () {
+        return (<tr>{this._renderHeaderCells()}</tr>);
+    }
+
+    _renderHeaderCells = () => {
         return this.props.headers.map((name: string, id: number) => {
             let key = 'head' + id.toString();
             return (<th key={key}>{name}</th>);
         });
     };
 
-    renderRows () {
-        return this.props.data.map(this.renderRow);
+    _renderRows () {
+        this._allCells = {};
+        return this.props.data.map(this._renderRow);
     }
 
-    renderRow = (row: any, rowId: number) => {
+    _renderRow = (row: any, rowId: number) => {
         let cells = this.props.headers.map((name: string, cellId: number) => {
-            return this.renderCell(row[name], rowId, cellId);
+            return this._renderCell(row[name], rowId, cellId);
         });
         let showId = 'row-' + rowId.toString();
         return (<tr key={showId}>{cells}</tr>);
     };
 
-    renderCell = (content: any, rowId: number, cellId: number) => {
+    _renderCell = (content: any, rowId: number, cellId: number) => {
         let showId = 'cell-' + rowId.toString() + '-' + cellId.toString();
         return (
             <td key={showId}
-                ref={c => (this._allCells.push({elem: c, rowId: rowId, cellId: cellId}))}>{content}</td>
+                ref={c => (this._allCells[showId] = {elem: c, rowId: rowId, cellId: cellId})}>{content}</td>
         );
     };
 
-    normalizeFrame = () => {
-        let {x1, y1, x2, y2} = this._dimentions;
+    _normalizeFrame = () => {
+        let {x1, y1, x2, y2} = this._dimensions;
         if (x1 > x2) {
-            this._dimentions.x1 = x2;
-            this._dimentions.x2 = x1;
+            this._dimensions.x1 = x2;
+            this._dimensions.x2 = x1;
         }
         if (y1 > y2) {
-            this._dimentions.y1 = y2;
-            this._dimentions.y2 = y1;
+            this._dimensions.y1 = y2;
+            this._dimensions.y2 = y1;
         }
     };
 
-    setFrameDimensions = () => {
-        let {x1, y1, x2, y2} = this._dimentions;
+    _setFrameDimensions = () => {
+        let {x1, y1, x2, y2} = this._dimensions;
         this._frame.style.left = x1.toString() + 'px';
         this._frame.style.top = y1.toString() + 'px';
         this._frame.style.width = (x2 - x1).toString() + 'px';
         this._frame.style.height = (y2 - y1).toString() + 'px';
     };
 
-    findSelected = () => {
-        this._selected = this._allCells.filter(this.isContained);
+    _findSelected = () => {
+        this._selected = [];
+        for (let key in this._allCells) {
+            let cell = this._allCells[key];
+            if (this._isContained(cell)) {
+                this._selected.push(cell);
+            }
+        };
     };
 
-    isContained = (obj) => {
+    _isContained = (obj) => {
         let rect = obj.elem.getBoundingClientRect();
-        if (rect.top > this._dimentions.y1 &&
-            rect.bottom < this._dimentions.y2 &&
-            rect.left > this._dimentions.x1 &&
-            rect.right < this._dimentions.x2) {
+        if (rect.top > this._dimensions.y1 &&
+            rect.bottom < this._dimensions.y2 &&
+            rect.left > this._dimensions.x1 &&
+            rect.right < this._dimensions.x2) {
             return true;
         }
         return false;
     };
 
-    deselect = () => {
+    _deselect = () => {
         this._selected.forEach(obj => (obj.elem.style.border = '1px solid black'));
         this._selected = [];
     };
 
-    highlightSelected = () => {
+    _highlightSelected = () => {
         this._selected.forEach(obj => (obj.elem.style.border = '2px solid red'));
-        console.log(this._selected);
     };
 
-    handleMouseDown = (ev) => {
-        this.deselect();
+    _handleMouseDown = (ev) => {
+        this._deselect();
         this._frame.hidden = 0;
-        this._dimentions.x1 = ev.clientX;
-        this._dimentions.y1 = ev.clientY;
+        this._dimensions.x1 = ev.clientX;
+        this._dimensions.y1 = ev.clientY;
     };
 
-    handleMouseUp = (ev) => {
+    _handleMouseUp = (ev) => {
         this._frame.hidden = 1;
-        this.findSelected();
-        this.highlightSelected();
+        this._findSelected();
+        this._highlightSelected();
+        this.passToCallback();
     };
 
-    handleMouseMove = (ev) => {
-        this._dimentions.x2 = ev.clientX;
-        this._dimentions.y2 = ev.clientY;
-        this.normalizeFrame();
-        this.setFrameDimensions();
+    _handleMouseMove = (ev) => {
+        this._dimensions.x2 = ev.clientX;
+        this._dimensions.y2 = ev.clientY;
+        this._normalizeFrame();
+        this._setFrameDimensions();
     };
-
-    render () {
-        return (
-            <div onMouseDown={this.handleMouseDown}
-                 onMouseUp={this.handleMouseUp}
-                 onMouseMove={this.handleMouseMove}>
-                <div className="selec-table-frame-div"
-                     ref={c => (this._frame = c)}
-                     hidden></div>
-                <table>
-                    <thead>{this.renderHeaders()}</thead>
-                    <tbody>{this.renderRows()}</tbody>
-                </table>
-            </div>
-        );
-    }
 }
