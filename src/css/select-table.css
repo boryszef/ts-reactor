@@ -6,11 +6,17 @@
 }
 
 table {
-  margin: 30px;
+    margin: 30px;
 }
 
 td, th {
-  padding: 5px;
-  font-size: 12pt;
-  border: 1px solid black;
+    padding: 5px;
+    font-size: 12pt;
+    border: 1px solid black;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
