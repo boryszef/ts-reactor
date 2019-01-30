@@ -9,7 +9,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: 'src/templates/index.html'
     }),
-    new ExtractTextWebpackPlugin('styles.css')
+    new ExtractTextWebpackPlugin('build/styles.css')
   ],
   output: {
     path: __dirname + '/public',
