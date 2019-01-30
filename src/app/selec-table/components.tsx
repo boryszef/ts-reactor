@@ -5,6 +5,7 @@ export class SelecTable extends React.Component<IFaces.IProps, any> {
 
     _frame = null;
     _dimensions = {x1: 0, y1: 0, x2: 0, y2: 0};
+    _normalizedDimensions = {x1: 0, y1: 0, x2: 0, y2: 0};
     _allCells = {};
     _selected = [];
 
@@ -80,18 +81,19 @@ export class SelecTable extends React.Component<IFaces.IProps, any> {
 
     _normalizeFrame = () => {
         let {x1, y1, x2, y2} = this._dimensions;
+        this._normalizedDimensions = {x1, y1, x2, y2};
         if (x1 > x2) {
-            this._dimensions.x1 = x2;
-            this._dimensions.x2 = x1;
+            this._normalizedDimensions.x1 = x2;
+            this._normalizedDimensions.x2 = x1;
         }
         if (y1 > y2) {
-            this._dimensions.y1 = y2;
-            this._dimensions.y2 = y1;
+            this._normalizedDimensions.y1 = y2;
+            this._normalizedDimensions.y2 = y1;
         }
     };
 
     _setFrameDimensions = () => {
-        let {x1, y1, x2, y2} = this._dimensions;
+        let {x1, y1, x2, y2} = this._normalizedDimensions;
         this._frame.style.left = x1.toString() + 'px';
         this._frame.style.top = y1.toString() + 'px';
         this._frame.style.width = (x2 - x1).toString() + 'px';
@@ -110,10 +112,10 @@ export class SelecTable extends React.Component<IFaces.IProps, any> {
 
     _isContained = (obj) => {
         let rect = obj.elem.getBoundingClientRect();
-        if (rect.top > this._dimensions.y1 &&
-            rect.bottom < this._dimensions.y2 &&
-            rect.left > this._dimensions.x1 &&
-            rect.right < this._dimensions.x2) {
+        if (rect.top > this._normalizedDimensions.y1 &&
+            rect.bottom < this._normalizedDimensions.y2 &&
+            rect.left > this._normalizedDimensions.x1 &&
+            rect.right < this._normalizedDimensions.x2) {
             return true;
         }
         return false;

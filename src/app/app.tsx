@@ -38,7 +38,7 @@ class Container extends React.Component<any, any> {
     renderObject (obj, id) {
         let line = [];
         for (let prop in obj) {
-            line.push(<span><strong>{prop}:</strong> {obj[prop]} </span>);
+            line.push(<span key={id.toString() + "-" + prop}><strong>{prop}:</strong> {obj[prop]} </span>);
         }
         return (<div key={id}>{line}</div>);
     }
