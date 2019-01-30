@@ -8,8 +8,7 @@
   },
   "scripts": {
     "build": "webpack -p",
-    "start": "webpack-dev-server -d --content-base ./public",
-    "test": "jest"
+    "start": "webpack-dev-server -d --content-base ./public"
   },
   "dependencies": {
     "@types/react-dom": "16.0.11",
@@ -24,27 +23,8 @@
     "webpack-dev-server": "3.1.14"
   },
   "devDependencies": {
-    "@types/enzyme": "^3.1.15",
-    "@types/jest": "^23.3.13",
     "css-loader": "^2.1.0",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.8.0",
-    "jest": "^24.0.0",
-    "react-test-renderer": "^16.7.0",
-    "style-loader": "^0.23.1",
-    "ts-jest": "^23.10.5"
-  },
-  "jest": {
-    "setupFiles": [
-      "<rootDir>/test-shim.js",
-      "<rootDir>/test-setup.js"
-    ],
-    "moduleFileExtensions": ["ts", "tsx", "js"],
-    "transform": {
-      "^.+\\.(ts|tsx)$": "<rootDir>/test-preprocessor.js"
-    },
-    "testMatch": [
-      "**/__tests__/*.(ts|tsx|js)"
-    ]
+    "extract-text-webpack-plugin": "^4.0.0-beta.0",
+    "style-loader": "^0.23.1"
   }
 }
