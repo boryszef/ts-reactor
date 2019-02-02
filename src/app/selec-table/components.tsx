@@ -8,6 +8,7 @@ export class SelecTable extends React.Component<IFaces.IProps, any> {
     _normalizedDimensions = {x1: 0, y1: 0, x2: 0, y2: 0};
     _allCells = {};
     _selected = [];
+    _isSelecting = false;
 
     constructor(props: IFaces.IProps) {
         super(props);
@@ -17,8 +18,10 @@ export class SelecTable extends React.Component<IFaces.IProps, any> {
         return (
             <div onMouseDown={this._handleMouseDown}
                  onMouseUp={this._handleMouseUp}
-                 onMouseMove={this._handleMouseMove}>
-                <div className="selec-table-frame-div"
+                 onMouseMove={this._handleMouseMove} 
+                 onMouseEnter={this._handleMouseEnter}
+                 className="selec-table-container">
+                <div className="selec-table-frame"
                      ref={c => (this._frame = c)}
                      hidden></div>
                 {this._renderTable()}
@@ -41,20 +44,20 @@ export class SelecTable extends React.Component<IFaces.IProps, any> {
     };
 
     _renderTable () {
-        return (<table>
-                    <thead>{this._renderHeaders()}</thead>
-                    <tbody>{this._renderRows()}</tbody>
+        return (<table className="selec-table">
+                    <thead className="selec-table">{this._renderHeaders()}</thead>
+                    <tbody className="selec-table">{this._renderRows()}</tbody>
                 </table>);
     }
 
     _renderHeaders () {
-        return (<tr>{this._renderHeaderCells()}</tr>);
+        return (<tr className="selec-table">{this._renderHeaderCells()}</tr>);
     }
 
     _renderHeaderCells = () => {
         return this.props.headers.map((name: string, id: number) => {
             let key = 'head' + id.toString();
-            return (<th key={key}>{name}</th>);
+            return (<th className="selec-table" key={key}>{name}</th>);
         });
     };
 
@@ -68,13 +71,13 @@ export class SelecTable extends React.Component<IFaces.IProps, any> {
             return this._renderCell(row[name], rowId, cellId);
         });
         let showId = 'row-' + rowId.toString();
-        return (<tr key={showId}>{cells}</tr>);
+        return (<tr className="selec-table" key={showId}>{cells}</tr>);
     };
 
     _renderCell = (content: any, rowId: number, cellId: number) => {
         let showId = 'cell-' + rowId.toString() + '-' + cellId.toString();
         return (
-            <td key={showId}
+            <td key={showId} className="selec-table"
                 ref={c => (this._allCells[showId] = {elem: c, rowId: rowId, cellId: cellId})}>{content}</td>
         );
     };
@@ -132,22 +135,43 @@ export class SelecTable extends React.Component<IFaces.IProps, any> {
 
     _handleMouseDown = (ev) => {
         this._deselect();
+        this._startFrame(ev.clientX, ev.clientY);
+    };
+
+    _startFrame = (x: number, y: number) => {
+        this._isSelecting = true;
         this._frame.hidden = 0;
-        this._dimensions.x1 = ev.clientX;
-        this._dimensions.y1 = ev.clientY;
+        this._dimensions.x1 = x;
+        this._dimensions.y1 = y;
+    };
+
+    _stopFrame = (x: number, y: number) => {
+        this._isSelecting = false;
+        this._frame.hidden = 1;
+        this._dimensions.x2 = x;
+        this._dimensions.y2 = y;
     };
 
     _handleMouseUp = (ev) => {
-        this._frame.hidden = 1;
+        this._stopFrame(ev.clientX, ev.clientY);
         this._findSelected();
         this._highlightSelected();
         this.passToCallback();
     };
 
     _handleMouseMove = (ev) => {
+        if (!this._isSelecting) {
+            return;
+        }
         this._dimensions.x2 = ev.clientX;
         this._dimensions.y2 = ev.clientY;
         this._normalizeFrame();
         this._setFrameDimensions();
+    };
+
+    _handleMouseEnter = (ev) => {
+        if (!(ev.buttons & 1)) {
+            this._stopFrame(ev.clienX, ev.clientY);
+        }
     };
 }

@@ -1,16 +1,20 @@
-.selec-table-frame-div {
+div.selec-table-container {
+    padding: 10px;
+}
+
+div.selec-table-frame {
     border: 2px dotted #000;
     position: absolute;
     background-color: rgba(128, 128, 128, 0.5);
     z-index: 55;
 }
 
-table {
+table.selec-table {
     margin: 30px;
 }
 
-td, th {
-    padding: 5px;
+td.selec-table, th.selec-table {
+    padding: 10px;
     font-size: 12pt;
     border: 1px solid black;
     -webkit-touch-callout: none;
