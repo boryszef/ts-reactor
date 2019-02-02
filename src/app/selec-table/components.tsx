@@ -140,9 +140,13 @@ export class SelecTable extends React.Component<IFaces.IProps, any> {
 
     _startFrame = (x: number, y: number) => {
         this._isSelecting = true;
-        this._frame.hidden = 0;
         this._dimensions.x1 = x;
         this._dimensions.y1 = y;
+        this._dimensions.x2 = x;
+        this._dimensions.y2 = y;
+        this._normalizeFrame();
+        this._setFrameDimensions();
+        this._frame.hidden = 0;
     };
 
     _stopFrame = (x: number, y: number) => {
